@@ -1,0 +1,16 @@
+# Compiled files
+/main
+/changelog
+
+# Build directories
+/bin/**
+/build/**
+
+# Test files
+*.log
+*.out
+*.test
+
+# Misc
+*.html
+/.brew_home/

@@ -1,0 +1,41 @@
+general:
+  file: RELEASE-NOTES.md
+  base: SUMMARY-NOTES.md
+  print: true
+  verbose: true
+
+tags:
+  exclude: [ prerelease, candidate ]
+  exclude-regex: (.*)-(alpha|beta)
+
+issues:
+  selection: labeled
+  include-labels: [ breaking, bug, defect, deprecated, enhancement, feature, highlight, improvement, incompatible, privacy, removed, security, summary ]
+  exclude-labels: [ documentation, duplicate, invalid, question, wontfix ]
+  grouping: milestone
+  summary-labels: [ summary, highlight ]
+  removed-labels: [ removed ]
+  breaking-labels: [ breaking, incompatible ]
+  deprecated-labels: [ deprecated ]
+  feature-labels: [ feature ]
+  enhancement-labels: [ enhancement, improvement ]
+  bug-labels: [ bug, defect ]
+  security-labels: [ security, privacy ]
+
+merges:
+  selection: labeled
+  branch: production
+  include-labels: [ breaking, bug, defect, deprecated, enhancement, feature, highlight, improvement, incompatible, privacy, removed, security, summary ]
+  exclude-labels: [ documentation, duplicate, invalid, question, wontfix ]
+  grouping: label
+  summary-labels: [ summary, highlight ]
+  removed-labels: [ removed ]
+  breaking-labels: [ breaking, incompatible ]
+  deprecated-labels: [ deprecated ]
+  feature-labels: [ feature ]
+  enhancement-labels: [ enhancement, improvement ]
+  bug-labels: [ bug, defect ]
+  security-labels: [ security, privacy ]
+
+content:
+  release-url: https://storage.artifactory.com/project/releases/{tag}
