@@ -24,7 +24,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	if err := flagit.Populate(&s, false); err != nil {
+	if err := flagit.Parse(&s, false); err != nil {
 		logger.Fatal(err)
 	}
 

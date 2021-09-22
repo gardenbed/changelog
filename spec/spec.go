@@ -460,7 +460,7 @@ func (s Spec) FromFile() (Spec, error) {
 	return s, nil
 }
 
-// WithRepo adds populates Repo sepcs and returns a new spec object.
+// WithRepo sets Repo sepcs and returns a new spec object.
 func (s Spec) WithRepo(domain, path string) Spec {
 	// Leave s.Repo.AccessToken unchanged
 	s.Repo.Platform = Platform(domain)
