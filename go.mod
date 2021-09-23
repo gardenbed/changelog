@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/fatih/color v1.13.0
-	github.com/gardenbed/flagit v0.0.0-20210922054643-4e9ffdfdde14
+	github.com/gardenbed/flagit v0.0.0-20210923001951-23c52451ddeb
 	github.com/gardenbed/go-github v0.0.0-20210915025734-785da5d18e30
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/stretchr/testify v1.7.0
