@@ -18,8 +18,8 @@ github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
-github.com/gardenbed/flagit v0.0.0-20210922054643-4e9ffdfdde14 h1:SFaexRz2d7NMIIo8oaT08JOcjVNvoLEAk2fxpkaHyhI=
-github.com/gardenbed/flagit v0.0.0-20210922054643-4e9ffdfdde14/go.mod h1:7Ma4qSiI7R5X3TrW+vdqP3DnW8hjcacREF0i1baQmoQ=
+github.com/gardenbed/flagit v0.0.0-20210923001951-23c52451ddeb h1:vxuJbZQBxRRT581nseH4pKdXDP1X9lK7zQTgKZKxwr8=
+github.com/gardenbed/flagit v0.0.0-20210923001951-23c52451ddeb/go.mod h1:7Ma4qSiI7R5X3TrW+vdqP3DnW8hjcacREF0i1baQmoQ=
 github.com/gardenbed/go-github v0.0.0-20210915025734-785da5d18e30 h1:KUpeCKiH6lBBPxKrJm4qsfiaYC6H5DzCbBHDnt126kA=
 github.com/gardenbed/go-github v0.0.0-20210915025734-785da5d18e30/go.mod h1:ccap46j8xixZNYt+/VEx9U552MPE+SXck2hqErt6XR4=
 github.com/gliderlabs/ssh v0.2.2 h1:6zsha5zo/TWhRhwqCD3+EarCAgZ2yN28ipRnGPnwkI0=
