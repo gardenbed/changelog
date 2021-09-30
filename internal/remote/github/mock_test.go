@@ -5,8 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gardenbed/changelog/internal/remote"
 	"github.com/gardenbed/go-github"
+
+	"github.com/gardenbed/changelog/internal/remote"
 )
 
 var (

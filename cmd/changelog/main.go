@@ -9,8 +9,8 @@ import (
 	"github.com/gardenbed/changelog/generate"
 	"github.com/gardenbed/changelog/internal/git"
 	"github.com/gardenbed/changelog/log"
+	"github.com/gardenbed/changelog/metadata"
 	"github.com/gardenbed/changelog/spec"
-	"github.com/gardenbed/changelog/version"
 )
 
 func main() {
@@ -46,7 +46,7 @@ func main() {
 		}
 
 	case s.Version:
-		fmt.Println(version.String())
+		fmt.Println(metadata.String())
 
 	default:
 		// Retrieve git repo informatin

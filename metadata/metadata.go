@@ -1,14 +1,14 @@
-package version
+package metadata
 
 import "fmt"
 
 const template = `
-  version:    %s
-  commit:     %s
-  branch:     %s
-  goVersion:  %s
-  buildTool:  %s
-  buildTime:  %s
+  version:     %s
+  commit:      %s
+  branch:      %s
+  go version:  %s
+  build tool:  %s
+  build time:  %s
 `
 
 var (
@@ -31,7 +31,7 @@ var (
 	BuildTime string
 )
 
-// String returns a string describing the version information in details
+// String returns a string describing the metadata in details
 func String() string {
 	return fmt.Sprintf(template, Version, Commit, Branch, GoVersion, BuildTool, BuildTime)
 }

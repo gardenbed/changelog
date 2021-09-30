@@ -11,27 +11,41 @@ import (
 
 func TestNewRepo(t *testing.T) {
 	tests := []struct {
-		name   string
-		logger log.Logger
-		path   string
+		name          string
+		logger        log.Logger
+		path          string
+		expectedError string
 	}{
 		{
-			name:   "OK",
-			logger: log.New(log.None),
-			path:   ".",
+			name:          "Failure",
+			logger:        log.New(log.None),
+			path:          "/dev/null",
+			expectedError: "repository does not exist",
+		},
+		{
+			name:          "Success",
+			logger:        log.New(log.None),
+			path:          ".",
+			expectedError: "",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			r, err := NewRepo(tc.logger, tc.path)
-			assert.NoError(t, err)
 
-			rp, ok := r.(*repo)
-			assert.True(t, ok)
+			if tc.expectedError != "" {
+				assert.Nil(t, r)
+				assert.EqualError(t, err, tc.expectedError)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, r)
 
-			assert.NotNil(t, rp)
-			assert.NotNil(t, rp.git)
+				rp, ok := r.(*repo)
+				assert.True(t, ok)
+				assert.NotNil(t, rp)
+				assert.NotNil(t, rp.git)
+			}
 		})
 	}
 }

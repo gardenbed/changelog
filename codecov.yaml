@@ -43,4 +43,4 @@ comment: false
 
 # See https://docs.codecov.com/docs/ignoring-paths
 ignore:
-  - 'version/**/*'
+  - 'metadata/**/*'
