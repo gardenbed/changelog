@@ -3,12 +3,12 @@ package metadata
 import "fmt"
 
 const template = `
-  version:     %s
-  commit:      %s
-  branch:      %s
-  go version:  %s
-  build tool:  %s
-  build time:  %s
+  Version:     %s
+  Commit:      %s
+  Branch:      %s
+  Go Version:  %s
+  Build Tool:  %s
+  Build Time:  %s
 `
 
 var (
