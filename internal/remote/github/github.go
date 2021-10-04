@@ -29,7 +29,10 @@ type (
 		Commits(context.Context, int, int) ([]github.Commit, *github.Response, error)
 		Branch(context.Context, string) (*github.Branch, *github.Response, error)
 		Tags(context.Context, int, int) ([]github.Tag, *github.Response, error)
-		Issues(context.Context, int, int, github.IssuesParams) ([]github.Issue, *github.Response, error)
+	}
+
+	issuesService interface {
+		All(context.Context, int, int, github.IssuesFilter) ([]github.Issue, *github.Response, error)
 		Events(context.Context, int, int, int) ([]github.Event, *github.Response, error)
 	}
 )
@@ -47,12 +50,14 @@ type repo struct {
 		github githubService
 		users  usersService
 		repo   repoService
+		issues issuesService
 	}
 }
 
 // NewRepo creates a new GitHub repository.
 func NewRepo(logger log.Logger, ownerName, repoName, accessToken string) remote.Repo {
 	client := github.NewClient(accessToken)
+	repoService := client.Repo(ownerName, repoName)
 
 	r := &repo{
 		logger: logger,
@@ -64,7 +69,8 @@ func NewRepo(logger log.Logger, ownerName, repoName, accessToken string) remote.
 	r.stores.commits = newStore()
 	r.services.github = client
 	r.services.users = client.Users
-	r.services.repo = client.Repo(ownerName, repoName)
+	r.services.repo = repoService
+	r.services.issues = repoService.Issues
 
 	return r
 }
@@ -129,7 +135,7 @@ func (r *repo) getParentCommits(ctx context.Context, ref string) (remote.Commits
 
 func (r *repo) findEvent(ctx context.Context, num int, name string) (github.Event, error) {
 	for p := 1; p > 0; {
-		events, resp, err := r.services.repo.Events(ctx, num, pageSize, p)
+		events, resp, err := r.services.issues.Events(ctx, num, pageSize, p)
 		if err != nil {
 			return github.Event{}, err
 		}
@@ -320,14 +326,14 @@ func (r *repo) FetchIssuesAndMerges(ctx context.Context, since time.Time) (remot
 	// ==============================> FETCH ISSUES <==============================
 
 	issueStore := newStore()
-	opts := github.IssuesParams{
+	filter := github.IssuesFilter{
 		State: "closed",
 		Since: since,
 	}
 
 	// Fetch closed issues
 	r.logger.Debug("Fetched GitHub issues page 1 ...")
-	gitHubIssues, resp, err := r.services.repo.Issues(ctx, pageSize, 1, opts)
+	gitHubIssues, resp, err := r.services.issues.All(ctx, pageSize, 1, filter)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -342,7 +348,7 @@ func (r *repo) FetchIssuesAndMerges(ctx context.Context, since time.Time) (remot
 		p := p // https://golang.org/doc/faq#closures_and_goroutines
 		g1.Go(func() error {
 			r.logger.Debugf("Fetched GitHub issues page %d ...", p)
-			gitHubIssues, _, err := r.services.repo.Issues(ctx1, pageSize, p, opts)
+			gitHubIssues, _, err := r.services.issues.All(ctx1, pageSize, p, filter)
 			if err != nil {
 				return err
 			}

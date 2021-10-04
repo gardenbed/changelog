@@ -410,26 +410,6 @@ type (
 		OutError    error
 	}
 
-	IssuesMock struct {
-		InContext   context.Context
-		InPageSize  int
-		InPageNo    int
-		InParams    github.IssuesParams
-		OutIssues   []github.Issue
-		OutResponse *github.Response
-		OutError    error
-	}
-
-	EventsMock struct {
-		InContext   context.Context
-		InNumber    int
-		InPageSize  int
-		InPageNo    int
-		OutEvents   []github.Event
-		OutResponse *github.Response
-		OutError    error
-	}
-
 	MockRepoService struct {
 		GetIndex int
 		GetMocks []GetRepoMock
@@ -445,13 +425,6 @@ type (
 
 		TagsIndex int
 		TagsMocks []TagsMock
-
-		IssuesIndex int
-		IssuesMocks []IssuesMock
-
-		EventsMutex sync.Mutex
-		EventsIndex int
-		EventsMocks []EventsMock
 	}
 )
 
@@ -496,17 +469,48 @@ func (m *MockRepoService) Tags(ctx context.Context, pageSize, pageNo int) ([]git
 	return m.TagsMocks[i].OutTags, m.TagsMocks[i].OutResponse, m.TagsMocks[i].OutError
 }
 
-func (m *MockRepoService) Issues(ctx context.Context, pageSize, pageNo int, params github.IssuesParams) ([]github.Issue, *github.Response, error) {
-	i := m.IssuesIndex
-	m.IssuesIndex++
-	m.IssuesMocks[i].InContext = ctx
-	m.IssuesMocks[i].InPageSize = pageSize
-	m.IssuesMocks[i].InPageNo = pageNo
-	m.IssuesMocks[i].InParams = params
-	return m.IssuesMocks[i].OutIssues, m.IssuesMocks[i].OutResponse, m.IssuesMocks[i].OutError
+type (
+	IssuesAllMock struct {
+		InContext   context.Context
+		InPageSize  int
+		InPageNo    int
+		InFilter    github.IssuesFilter
+		OutIssues   []github.Issue
+		OutResponse *github.Response
+		OutError    error
+	}
+
+	EventsMock struct {
+		InContext   context.Context
+		InNumber    int
+		InPageSize  int
+		InPageNo    int
+		OutEvents   []github.Event
+		OutResponse *github.Response
+		OutError    error
+	}
+
+	MockIssuesService struct {
+		AllIndex int
+		AllMocks []IssuesAllMock
+
+		EventsMutex sync.Mutex
+		EventsIndex int
+		EventsMocks []EventsMock
+	}
+)
+
+func (m *MockIssuesService) All(ctx context.Context, pageSize, pageNo int, filter github.IssuesFilter) ([]github.Issue, *github.Response, error) {
+	i := m.AllIndex
+	m.AllIndex++
+	m.AllMocks[i].InContext = ctx
+	m.AllMocks[i].InPageSize = pageSize
+	m.AllMocks[i].InPageNo = pageNo
+	m.AllMocks[i].InFilter = filter
+	return m.AllMocks[i].OutIssues, m.AllMocks[i].OutResponse, m.AllMocks[i].OutError
 }
 
-func (m *MockRepoService) Events(ctx context.Context, number, pageSize, pageNo int) ([]github.Event, *github.Response, error) {
+func (m *MockIssuesService) Events(ctx context.Context, number, pageSize, pageNo int) ([]github.Event, *github.Response, error) {
 	m.EventsMutex.Lock()
 	defer m.EventsMutex.Unlock()
 
