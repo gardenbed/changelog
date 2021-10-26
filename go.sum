@@ -20,8 +20,8 @@ github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYF
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/gardenbed/flagit v0.0.0-20210924014235-eceee4bab6c6 h1:sEYvxxP8uNj5cK/rLhIaErZmP6CN2k26fyC5erRzW0k=
 github.com/gardenbed/flagit v0.0.0-20210924014235-eceee4bab6c6/go.mod h1:7Ma4qSiI7R5X3TrW+vdqP3DnW8hjcacREF0i1baQmoQ=
-github.com/gardenbed/go-github v0.0.0-20211004022839-76cc93c6c8ba h1:vBswanAIfFZAJa24aUDfLDTJ/PyjrvvSoL7GAl/vUX8=
-github.com/gardenbed/go-github v0.0.0-20211004022839-76cc93c6c8ba/go.mod h1:ccap46j8xixZNYt+/VEx9U552MPE+SXck2hqErt6XR4=
+github.com/gardenbed/go-github v0.0.0-20211026155549-9b9206a06340 h1:xoukYYkhsnnwARq706lGuxrQ5vRy0eO7/UNwbym7IUc=
+github.com/gardenbed/go-github v0.0.0-20211026155549-9b9206a06340/go.mod h1:ccap46j8xixZNYt+/VEx9U552MPE+SXck2hqErt6XR4=
 github.com/gliderlabs/ssh v0.2.2 h1:6zsha5zo/TWhRhwqCD3+EarCAgZ2yN28ipRnGPnwkI0=
 github.com/gliderlabs/ssh v0.2.2/go.mod h1:U7qILu1NlMHj9FlMhZLlkCdDnU1DBEAqr0aevW3Awn0=
 github.com/go-git/gcfg v1.5.0 h1:Q5ViNfGF8zFgyJWPqYwA7qGFoMTEiBmdlkcfRmpIMa4=
