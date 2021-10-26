@@ -270,7 +270,7 @@ func TestRepo_getParentCommits(t *testing.T) {
 func TestRepo_findEvent(t *testing.T) {
 	tests := []struct {
 		name          string
-		issuesService *MockIssuesService
+		issueService  *MockIssueService
 		ctx           context.Context
 		num           int
 		eventName     string
@@ -279,7 +279,7 @@ func TestRepo_findEvent(t *testing.T) {
 	}{
 		{
 			name: "Error",
-			issuesService: &MockIssuesService{
+			issueService: &MockIssueService{
 				EventsMocks: []EventsMock{
 					{OutError: errors.New("error on getting github events")},
 				},
@@ -291,7 +291,7 @@ func TestRepo_findEvent(t *testing.T) {
 		},
 		{
 			name: "Found_FirstPage",
-			issuesService: &MockIssuesService{
+			issueService: &MockIssueService{
 				EventsMocks: []EventsMock{
 					{
 						OutEvents: []github.Event{gitHubEvent1},
@@ -308,7 +308,7 @@ func TestRepo_findEvent(t *testing.T) {
 		},
 		{
 			name: "Found_SecondPage",
-			issuesService: &MockIssuesService{
+			issueService: &MockIssueService{
 				EventsMocks: []EventsMock{
 					{
 						OutEvents: []github.Event{},
@@ -331,7 +331,7 @@ func TestRepo_findEvent(t *testing.T) {
 		},
 		{
 			name: "NotFound",
-			issuesService: &MockIssuesService{
+			issueService: &MockIssueService{
 				EventsMocks: []EventsMock{
 					{
 						OutEvents: []github.Event{},
@@ -357,7 +357,7 @@ func TestRepo_findEvent(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			r := &repo{logger: log.New(log.None)}
-			r.services.issues = tc.issuesService
+			r.services.issues = tc.issueService
 
 			event, err := r.findEvent(tc.ctx, tc.num, tc.eventName)
 
@@ -826,7 +826,7 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 		commitsStore   *store
 		usersService   *MockUsersService
 		repoService    *MockRepoService
-		issuesService  *MockIssuesService
+		issueService   *MockIssueService
 		ctx            context.Context
 		since          time.Time
 		expectedIssues remote.Issues
@@ -842,8 +842,8 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 				m: map[interface{}]interface{}{},
 			},
 			usersService: &MockUsersService{},
-			issuesService: &MockIssuesService{
-				AllMocks: []IssuesAllMock{
+			issueService: &MockIssueService{
+				ListMocks: []IssuesListMock{
 					{OutError: errors.New("error on getting github issues")},
 				},
 			},
@@ -860,8 +860,8 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 				m: map[interface{}]interface{}{},
 			},
 			usersService: &MockUsersService{},
-			issuesService: &MockIssuesService{
-				AllMocks: []IssuesAllMock{
+			issueService: &MockIssueService{
+				ListMocks: []IssuesListMock{
 					{
 						OutIssues: []github.Issue{gitHubIssue1},
 						OutResponse: &github.Response{
@@ -884,8 +884,8 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 				m: map[interface{}]interface{}{},
 			},
 			usersService: &MockUsersService{},
-			issuesService: &MockIssuesService{
-				AllMocks: []IssuesAllMock{
+			issueService: &MockIssueService{
+				ListMocks: []IssuesListMock{
 					{
 						OutIssues: []github.Issue{gitHubIssue1},
 						OutResponse: &github.Response{
@@ -922,8 +922,8 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 					{OutError: errors.New("error on getting github commit")},
 				},
 			},
-			issuesService: &MockIssuesService{
-				AllMocks: []IssuesAllMock{
+			issueService: &MockIssueService{
+				ListMocks: []IssuesListMock{
 					{
 						OutIssues: []github.Issue{gitHubIssue1},
 						OutResponse: &github.Response{
@@ -965,8 +965,8 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 					{OutCommit: &gitHubCommit1, OutResponse: &github.Response{}},
 				},
 			},
-			issuesService: &MockIssuesService{
-				AllMocks: []IssuesAllMock{
+			issueService: &MockIssueService{
+				ListMocks: []IssuesListMock{
 					{
 						OutIssues: []github.Issue{gitHubIssue1},
 						OutResponse: &github.Response{
@@ -1011,8 +1011,8 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 					{OutCommit: &gitHubCommit1, OutResponse: &github.Response{}},
 				},
 			},
-			issuesService: &MockIssuesService{
-				AllMocks: []IssuesAllMock{
+			issueService: &MockIssueService{
+				ListMocks: []IssuesListMock{
 					{
 						OutIssues: []github.Issue{gitHubIssue1},
 						OutResponse: &github.Response{
@@ -1054,8 +1054,8 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 					{OutCommit: &gitHubCommit1, OutResponse: &github.Response{}},
 				},
 			},
-			issuesService: &MockIssuesService{
-				AllMocks: []IssuesAllMock{
+			issueService: &MockIssueService{
+				ListMocks: []IssuesListMock{
 					{
 						OutIssues: []github.Issue{gitHubIssue1},
 						OutResponse: &github.Response{
@@ -1089,7 +1089,7 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 			r.stores.commits = tc.commitsStore
 			r.services.users = tc.usersService
 			r.services.repo = tc.repoService
-			r.services.issues = tc.issuesService
+			r.services.issues = tc.issueService
 
 			issues, merges, err := r.FetchIssuesAndMerges(tc.ctx, tc.since)
 

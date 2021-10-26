@@ -470,7 +470,7 @@ func (m *MockRepoService) Tags(ctx context.Context, pageSize, pageNo int) ([]git
 }
 
 type (
-	IssuesAllMock struct {
+	IssuesListMock struct {
 		InContext   context.Context
 		InPageSize  int
 		InPageNo    int
@@ -490,9 +490,9 @@ type (
 		OutError    error
 	}
 
-	MockIssuesService struct {
-		AllIndex int
-		AllMocks []IssuesAllMock
+	MockIssueService struct {
+		ListIndex int
+		ListMocks []IssuesListMock
 
 		EventsMutex sync.Mutex
 		EventsIndex int
@@ -500,17 +500,17 @@ type (
 	}
 )
 
-func (m *MockIssuesService) All(ctx context.Context, pageSize, pageNo int, filter github.IssuesFilter) ([]github.Issue, *github.Response, error) {
-	i := m.AllIndex
-	m.AllIndex++
-	m.AllMocks[i].InContext = ctx
-	m.AllMocks[i].InPageSize = pageSize
-	m.AllMocks[i].InPageNo = pageNo
-	m.AllMocks[i].InFilter = filter
-	return m.AllMocks[i].OutIssues, m.AllMocks[i].OutResponse, m.AllMocks[i].OutError
+func (m *MockIssueService) List(ctx context.Context, pageSize, pageNo int, filter github.IssuesFilter) ([]github.Issue, *github.Response, error) {
+	i := m.ListIndex
+	m.ListIndex++
+	m.ListMocks[i].InContext = ctx
+	m.ListMocks[i].InPageSize = pageSize
+	m.ListMocks[i].InPageNo = pageNo
+	m.ListMocks[i].InFilter = filter
+	return m.ListMocks[i].OutIssues, m.ListMocks[i].OutResponse, m.ListMocks[i].OutError
 }
 
-func (m *MockIssuesService) Events(ctx context.Context, number, pageSize, pageNo int) ([]github.Event, *github.Response, error) {
+func (m *MockIssueService) Events(ctx context.Context, number, pageSize, pageNo int) ([]github.Event, *github.Response, error) {
 	m.EventsMutex.Lock()
 	defer m.EventsMutex.Unlock()
 

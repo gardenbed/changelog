@@ -1,0 +1,14 @@
+version: "1.0"
+
+project:
+  language: go
+  profile: generic
+  build:
+    cross_compile: true
+    platforms:
+      - linux-amd64
+      - linux-arm64
+      - darwin-amd64
+      - windows-amd64
+  release:
+    mode: direct
