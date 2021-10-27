@@ -4,12 +4,12 @@ go 1.17
 
 require (
 	github.com/fatih/color v1.13.0
-	github.com/gardenbed/flagit v0.1.0
+	github.com/gardenbed/charm v0.1.0
 	github.com/gardenbed/go-github v0.1.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
 require (

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gardenbed/flagit"
+	"github.com/gardenbed/charm/flagit"
 
 	"github.com/gardenbed/changelog/generate"
 	"github.com/gardenbed/changelog/internal/git"
