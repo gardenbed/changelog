@@ -24,8 +24,8 @@ github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5Kwzbycv
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
-github.com/gardenbed/charm v0.1.1 h1:xahpa58nGeWoto+xxHswokp9a/fNzOTN+IYV32LreNc=
-github.com/gardenbed/charm v0.1.1/go.mod h1:HiWjZIx+2VznOPY/XUSxBBiY0tu5yC+1k0VTt0JQswg=
+github.com/gardenbed/charm v0.1.2 h1:QLvHAYQyYp5JkXlGa0uNKaOgaawM0x635UyEq3ZgQQ0=
+github.com/gardenbed/charm v0.1.2/go.mod h1:HiWjZIx+2VznOPY/XUSxBBiY0tu5yC+1k0VTt0JQswg=
 github.com/gardenbed/go-github v0.1.0 h1:hambI8usuzIPiGTmnAe00kx1TBa0mr8A/GvKXVcZT1I=
 github.com/gardenbed/go-github v0.1.0/go.mod h1:ccap46j8xixZNYt+/VEx9U552MPE+SXck2hqErt6XR4=
 github.com/gliderlabs/ssh v0.2.2 h1:6zsha5zo/TWhRhwqCD3+EarCAgZ2yN28ipRnGPnwkI0=
