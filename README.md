@@ -11,11 +11,12 @@ It aims to be *simpler*, *more intelligent*, and *dependency-free*.
 
 ## Why?
 
-[github-changelog-generator](https://github.com/github-changelog-generator/github-changelog-generator) is great, battle-proven, and just works! So, why did I decide to reinvent the wheel?
+[github-changelog-generator](https://github.com/github-changelog-generator/github-changelog-generator) is great, battle-proven, and just works!
+So, why did I decide to reinvent the wheel?
 
 It is not quite a reinvention!
 For a long time, I was using the aforementioned Ruby Gem to generated changelogs for my repositories.
-For creating releases on GitHub, I had to use another program to call the *github_changelog_generator* and then extract the newly added to changelog.
+For creating releases on GitHub, I had to use another program to call the *github_changelog_generator* and then extract the newly added lines to changelog.
 Here are some of the challenges I faced with this approach:
 
   - No control over the installed version of the Gem on developer machines
