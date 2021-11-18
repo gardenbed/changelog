@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/gardenbed/changelog/internal/changelog"
 	"github.com/gardenbed/changelog/log"
-
-	"github.com/stretchr/testify/assert"
 )
 
 var (

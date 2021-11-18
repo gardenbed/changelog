@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gardenbed/changelog/log"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/gardenbed/changelog/log"
 )
 
 func TestNewRepo(t *testing.T) {

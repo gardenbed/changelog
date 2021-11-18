@@ -3,10 +3,10 @@ package git
 import (
 	"testing"
 
-	"github.com/gardenbed/changelog/log"
 	"github.com/go-git/go-git/v5"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/gardenbed/changelog/log"
 )
 
 func TestNewRepo(t *testing.T) {
