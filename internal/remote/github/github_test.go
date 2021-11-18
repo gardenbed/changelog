@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gardenbed/go-github"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/gardenbed/changelog/internal/remote"
 	"github.com/gardenbed/changelog/log"
-	"github.com/gardenbed/go-github"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNewRepo(t *testing.T) {
@@ -198,6 +198,7 @@ func TestRepo_getParentCommits(t *testing.T) {
 		commitsStore    *store
 		repoService     *MockRepoService
 		ctx             context.Context
+		commits         *remote.Commits
 		ref             string
 		expectedCommits remote.Commits
 		expectedError   string
@@ -213,6 +214,7 @@ func TestRepo_getParentCommits(t *testing.T) {
 				},
 			},
 			ctx:           context.Background(),
+			commits:       &remote.Commits{},
 			ref:           "c3d0be41ecbe669545ee3e94d31ed9a4bc91ee3c",
 			expectedError: "error on getting github commit",
 		},
@@ -228,6 +230,7 @@ func TestRepo_getParentCommits(t *testing.T) {
 				},
 			},
 			ctx:           context.Background(),
+			commits:       &remote.Commits{},
 			ref:           "c3d0be41ecbe669545ee3e94d31ed9a4bc91ee3c",
 			expectedError: "error on getting github commit",
 		},
@@ -243,6 +246,7 @@ func TestRepo_getParentCommits(t *testing.T) {
 				},
 			},
 			ctx:             context.Background(),
+			commits:         &remote.Commits{},
 			ref:             "c3d0be41ecbe669545ee3e94d31ed9a4bc91ee3c",
 			expectedCommits: remote.Commits{remoteCommit2, remoteCommit1},
 		},
@@ -254,14 +258,13 @@ func TestRepo_getParentCommits(t *testing.T) {
 			r.stores.commits = tc.commitsStore
 			r.services.repo = tc.repoService
 
-			commits, err := r.getParentCommits(tc.ctx, tc.ref)
+			err := r.getParentCommits(tc.ctx, tc.commits, tc.ref)
 
 			if tc.expectedError != "" {
-				assert.Nil(t, commits)
 				assert.EqualError(t, err, tc.expectedError)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedCommits, commits)
+				assert.Equal(t, tc.expectedCommits, *tc.commits)
 			}
 		})
 	}

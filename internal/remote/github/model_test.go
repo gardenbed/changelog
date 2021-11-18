@@ -3,10 +3,10 @@ package github
 import (
 	"testing"
 
-	"github.com/gardenbed/changelog/internal/remote"
 	"github.com/gardenbed/go-github"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/gardenbed/changelog/internal/remote"
 )
 
 func TestToUser(t *testing.T) {
