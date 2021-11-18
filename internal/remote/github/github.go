@@ -7,9 +7,10 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/gardenbed/go-github"
+
 	"github.com/gardenbed/changelog/internal/remote"
 	"github.com/gardenbed/changelog/log"
-	"github.com/gardenbed/go-github"
 )
 
 const pageSize = 100
@@ -111,26 +112,23 @@ func (r *repo) getCommit(ctx context.Context, ref string) (github.Commit, error)
 	return *c, nil
 }
 
-func (r *repo) getParentCommits(ctx context.Context, ref string) (remote.Commits, error) {
-	commits := remote.Commits{}
-
+func (r *repo) getParentCommits(ctx context.Context, commits *remote.Commits, ref string) error {
 	c, err := r.getCommit(ctx, ref)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	commits = append(commits, toCommit(c))
+	*commits = append(*commits, toCommit(c))
 
 	for _, parent := range c.Parents {
-		parentCommits, err := r.getParentCommits(ctx, parent.SHA)
-		if err != nil {
-			return nil, err
+		if sha := parent.SHA; !commits.Any(sha) {
+			if err := r.getParentCommits(ctx, commits, sha); err != nil {
+				return err
+			}
 		}
-
-		commits = append(commits, parentCommits...)
 	}
 
-	return commits, nil
+	return nil
 }
 
 func (r *repo) findEvent(ctx context.Context, num int, name string) (github.Event, error) {
@@ -461,8 +459,8 @@ func (r *repo) FetchIssuesAndMerges(ctx context.Context, since time.Time) (remot
 func (r *repo) FetchParentCommits(ctx context.Context, ref string) (remote.Commits, error) {
 	r.logger.Debugf("Fetching all GitHub parent commits for %s ...", ref)
 
-	commits, err := r.getParentCommits(ctx, ref)
-	if err != nil {
+	commits := remote.Commits{}
+	if err := r.getParentCommits(ctx, &commits, ref); err != nil {
 		return nil, err
 	}
 

@@ -1,39 +1,74 @@
 package log
 
-import "testing"
+import (
+	"testing"
 
-func TestLogger(t *testing.T) {
-	tests := []struct {
-		name   string
-		v      Verbosity
-		format string
-		args   []interface{}
-	}{
-		{
-			name:   "Debug",
-			v:      Debug,
-			format: "foo: %s",
-			args:   []interface{}{"bar"},
-		},
-	}
+	"github.com/stretchr/testify/assert"
+)
 
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			l := New(None)
+func TestNew(t *testing.T) {
+	l, ok := New(Info).(*logger)
 
-			l.ChangeVerbosity(tc.v)
+	assert.True(t, ok)
+	assert.NotNil(t, l)
+	assert.NotNil(t, l.logger)
+}
 
-			l.Debug(tc.args...)
-			l.Debugf(tc.format, tc.args...)
+func TestLogger_ChangeVerbosity(t *testing.T) {
+	l := new(logger)
+	l.ChangeVerbosity(Info)
 
-			l.Info(tc.args...)
-			l.Infof(tc.format, tc.args...)
+	assert.Equal(t, Info, l.verbosity)
+}
 
-			l.Warn(tc.args...)
-			l.Warnf(tc.format, tc.args...)
+func TestLogger_Debug(t *testing.T) {
+	l := New(Debug)
+	l.Debug("value", 27)
+}
 
-			l.Error(tc.args...)
-			l.Errorf(tc.format, tc.args...)
-		})
-	}
+func TestLogger_Debugf(t *testing.T) {
+	l := New(Debug)
+	l.Debugf("Hello, %s!", "World")
+}
+
+func TestLogger_Info(t *testing.T) {
+	l := New(Info)
+	l.Info("value", 27)
+}
+
+func TestLogger_Infof(t *testing.T) {
+	l := New(Info)
+	l.Infof("Hello, %s!", "World")
+}
+
+func TestLogger_Warn(t *testing.T) {
+	l := New(Warn)
+	l.Warn("value", 27)
+}
+
+func TestLogger_Warnf(t *testing.T) {
+	l := New(Warn)
+	l.Warnf("Hello, %s!", "World")
+}
+
+func TestLogger_Error(t *testing.T) {
+	l := New(Error)
+	l.Error("value", 27)
+}
+
+func TestLogger_Errorf(t *testing.T) {
+	l := New(Error)
+	l.Errorf("Hello, %s!", "World")
+}
+
+func TestLogger_Fatal(t *testing.T) {
+	v := Verbosity(99)
+	l := New(v)
+	l.Fatal("value", 27)
+}
+
+func TestLogger_Fatalf(t *testing.T) {
+	v := Verbosity(99)
+	l := New(v)
+	l.Fatalf("Hello, %s!", "World")
 }

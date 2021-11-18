@@ -75,15 +75,15 @@ func New(v Verbosity) Logger {
 }
 
 func (l *logger) ChangeVerbosity(v Verbosity) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	l.verbosity = v
 }
 
 func (l *logger) Debug(v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Debug {
 		msg := l.debugColor.Sprint(v...)
@@ -92,8 +92,8 @@ func (l *logger) Debug(v ...interface{}) {
 }
 
 func (l *logger) Debugf(format string, v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Debug {
 		msg := l.debugColor.Sprintf(format, v...)
@@ -102,8 +102,8 @@ func (l *logger) Debugf(format string, v ...interface{}) {
 }
 
 func (l *logger) Info(v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Info {
 		msg := l.infoColor.Sprint(v...)
@@ -112,8 +112,8 @@ func (l *logger) Info(v ...interface{}) {
 }
 
 func (l *logger) Infof(format string, v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Info {
 		msg := l.infoColor.Sprintf(format, v...)
@@ -122,8 +122,8 @@ func (l *logger) Infof(format string, v ...interface{}) {
 }
 
 func (l *logger) Warn(v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Warn {
 		msg := l.warnColor.Sprint(v...)
@@ -132,8 +132,8 @@ func (l *logger) Warn(v ...interface{}) {
 }
 
 func (l *logger) Warnf(format string, v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Warn {
 		msg := l.warnColor.Sprintf(format, v...)
@@ -142,8 +142,8 @@ func (l *logger) Warnf(format string, v ...interface{}) {
 }
 
 func (l *logger) Error(v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Error {
 		msg := l.errorColor.Sprint(v...)
@@ -152,8 +152,8 @@ func (l *logger) Error(v ...interface{}) {
 }
 
 func (l *logger) Errorf(format string, v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Error {
 		msg := l.errorColor.Sprintf(format, v...)
@@ -162,8 +162,8 @@ func (l *logger) Errorf(format string, v ...interface{}) {
 }
 
 func (l *logger) Fatal(v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Fatal {
 		msg := l.fatalColor.Sprint(v...)
@@ -172,8 +172,8 @@ func (l *logger) Fatal(v ...interface{}) {
 }
 
 func (l *logger) Fatalf(format string, v ...interface{}) {
-	l.Mutex.Lock()
-	defer l.Mutex.Unlock()
+	l.Lock()
+	defer l.Unlock()
 
 	if l.verbosity <= Fatal {
 		msg := l.fatalColor.Sprintf(format, v...)

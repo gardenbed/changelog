@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/gardenbed/go-github"
-
 	"github.com/stretchr/testify/assert"
 )
 

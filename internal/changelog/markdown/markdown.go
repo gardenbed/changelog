@@ -139,13 +139,11 @@ func (p *processor) Render(chlog *changelog.Changelog) (string, error) {
 
 	// ==============================> RENDER THE CONTENT FOR NEW RELEASES <==============================
 
-	tmpl, err := template.New("changelog").Funcs(funcMap).Parse(changelogTemplate)
-	if err != nil {
-		return "", err
-	}
+	// All parameters are pre-defined and we do not expect an error here
+	tmpl, _ := template.New("changelog").Funcs(funcMap).Parse(changelogTemplate)
 
 	buf := new(bytes.Buffer)
-	if err = tmpl.Execute(buf, chlog.New); err != nil {
+	if err := tmpl.Execute(buf, chlog.New); err != nil {
 		return "", err
 	}
 
