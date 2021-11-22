@@ -11,8 +11,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gardenbed/charm/ui"
+
 	"github.com/gardenbed/changelog/internal/changelog"
-	"github.com/gardenbed/changelog/log"
 )
 
 const timeLayout = "2006-01-02"
@@ -56,16 +57,16 @@ var (
 
 // processor implements the changelog.Processor interface for Markdown format.
 type processor struct {
-	logger        log.Logger
+	ui            ui.UI
 	baseFile      string
 	changelogFile string
 	content       string
 }
 
 // NewProcessor creates a new changelog processor for Markdown format.
-func NewProcessor(logger log.Logger, baseFile, changelogFile string) changelog.Processor {
+func NewProcessor(ui ui.UI, baseFile, changelogFile string) changelog.Processor {
 	return &processor{
-		logger:        logger,
+		ui:            ui,
 		baseFile:      baseFile,
 		changelogFile: changelogFile,
 	}
@@ -79,14 +80,14 @@ func (p *processor) createChangelog() (*changelog.Changelog, error) {
 	_ = tmpl.Execute(buf, chlog)
 	p.content = buf.String()
 
-	p.logger.Warnf("%s not found", p.changelogFile)
-	p.logger.Info("A new changelog is created.")
+	p.ui.Warnf(ui.Yellow, "%s not found", p.changelogFile)
+	p.ui.Infof(ui.Green, "A new changelog is created.")
 
 	return chlog, nil
 }
 
 func (p *processor) Parse(opts changelog.ParseOptions) (*changelog.Changelog, error) {
-	p.logger.Debugf("Opening %s ...", p.changelogFile)
+	p.ui.Debugf(ui.Cyan, "Opening %s ...", p.changelogFile)
 
 	f, err := os.Open(p.changelogFile)
 	if err != nil {
@@ -97,7 +98,7 @@ func (p *processor) Parse(opts changelog.ParseOptions) (*changelog.Changelog, er
 	}
 	defer f.Close()
 
-	p.logger.Debugf("Parsing %s ...", p.changelogFile)
+	p.ui.Debugf(ui.Cyan, "Parsing %s ...", p.changelogFile)
 
 	content := ""
 	chlog := new(changelog.Changelog)
@@ -129,13 +130,13 @@ func (p *processor) Parse(opts changelog.ParseOptions) (*changelog.Changelog, er
 
 	p.content = content
 
-	p.logger.Infof("Successfully parsed %s", p.changelogFile)
+	p.ui.Infof(ui.Green, "Successfully parsed %s", p.changelogFile)
 
 	return chlog, nil
 }
 
 func (p *processor) Render(chlog *changelog.Changelog) (string, error) {
-	p.logger.Debug("Updating the changelog ...")
+	p.ui.Debugf(ui.Cyan, "Updating the changelog ...")
 
 	// ==============================> RENDER THE CONTENT FOR NEW RELEASES <==============================
 
@@ -163,7 +164,7 @@ func (p *processor) Render(chlog *changelog.Changelog) (string, error) {
 		// Add the content of an optional base file if generating the changelog for the first time
 		var baseContent string
 		if p.baseFile != "" {
-			p.logger.Infof("Adding the base file content to the changelog: %s", p.baseFile)
+			p.ui.Infof(ui.Green, "Adding the base file content to the changelog: %s", p.baseFile)
 
 			b, err := ioutil.ReadFile(p.baseFile)
 			if err != nil {
@@ -180,7 +181,7 @@ func (p *processor) Render(chlog *changelog.Changelog) (string, error) {
 		return "", err
 	}
 
-	p.logger.Infof("Successfully updated the changelog: %s", p.changelogFile)
+	p.ui.Infof(ui.Green, "Successfully updated the changelog: %s", p.changelogFile)
 
 	return newContent, nil
 }

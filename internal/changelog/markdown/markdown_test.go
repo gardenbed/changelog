@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gardenbed/charm/ui"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/gardenbed/changelog/internal/changelog"
-	"github.com/gardenbed/changelog/log"
 )
 
 var (
@@ -122,13 +122,13 @@ https://storage.artifactory.com/project/releases/v0.2.0
 func TestNewProcessor(t *testing.T) {
 	tests := []struct {
 		name          string
-		logger        log.Logger
+		ui            ui.UI
 		baseFile      string
 		changelogFile string
 	}{
 		{
 			name:          "OK",
-			logger:        log.New(log.None),
+			ui:            ui.New(ui.Info),
 			baseFile:      "HISTORY.md",
 			changelogFile: "CHANGELOG.md",
 		},
@@ -136,13 +136,13 @@ func TestNewProcessor(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			p := NewProcessor(tc.logger, tc.baseFile, tc.changelogFile)
+			p := NewProcessor(tc.ui, tc.baseFile, tc.changelogFile)
 			assert.NotNil(t, p)
 
 			mp, ok := p.(*processor)
 			assert.True(t, ok)
 
-			assert.Equal(t, tc.logger, mp.logger)
+			assert.Equal(t, tc.ui, mp.ui)
 			assert.Equal(t, tc.baseFile, mp.baseFile)
 			assert.Equal(t, tc.changelogFile, mp.changelogFile)
 			assert.Empty(t, mp.content)
@@ -160,7 +160,7 @@ func TestProcessor_createChangelog(t *testing.T) {
 		{
 			name: "OK",
 			p: &processor{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			expectedChangelog: &changelog.Changelog{
 				Title: "Changelog",
@@ -197,7 +197,7 @@ func TestProcessor_Parse(t *testing.T) {
 		{
 			name: "FileNotExist",
 			p: &processor{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			opts: changelog.ParseOptions{},
 			expectedChangelog: &changelog.Changelog{
@@ -208,7 +208,7 @@ func TestProcessor_Parse(t *testing.T) {
 		{
 			name: "Success",
 			p: &processor{
-				logger:        log.New(log.None),
+				ui:            ui.NewNop(),
 				changelogFile: "test/CHANGELOG.md",
 			},
 			opts: changelog.ParseOptions{},
@@ -259,7 +259,7 @@ func TestProcessor_Render(t *testing.T) {
 		{
 			name: "WithoutBaseFile",
 			p: &processor{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			chlog:             chlog,
 			expectedError:     nil,
@@ -268,7 +268,7 @@ func TestProcessor_Render(t *testing.T) {
 		{
 			name: "WithBaseFile",
 			p: &processor{
-				logger:   log.New(log.None),
+				ui:       ui.NewNop(),
 				baseFile: "test/HISTORY.md",
 			},
 			chlog:             chlog,

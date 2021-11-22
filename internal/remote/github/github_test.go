@@ -6,24 +6,24 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gardenbed/charm/ui"
 	"github.com/gardenbed/go-github"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/gardenbed/changelog/internal/remote"
-	"github.com/gardenbed/changelog/log"
 )
 
 func TestNewRepo(t *testing.T) {
 	tests := []struct {
 		name        string
-		logger      log.Logger
+		ui          ui.UI
 		ownerName   string
 		repoName    string
 		accessToken string
 	}{
 		{
 			name:        "OK",
-			logger:      log.New(log.None),
+			ui:          ui.New(ui.Info),
 			ownerName:   "gardenbed",
 			repoName:    "changelog",
 			accessToken: "github-access-token",
@@ -32,13 +32,13 @@ func TestNewRepo(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := NewRepo(tc.logger, tc.ownerName, tc.repoName, tc.accessToken)
+			r := NewRepo(tc.ui, tc.ownerName, tc.repoName, tc.accessToken)
 			assert.NotNil(t, r)
 
 			gr, ok := r.(*repo)
 			assert.True(t, ok)
 
-			assert.Equal(t, tc.logger, gr.logger)
+			assert.Equal(t, tc.ui, gr.ui)
 			assert.Equal(t, tc.ownerName, gr.owner)
 			assert.Equal(t, tc.repoName, gr.repo)
 			assert.NotNil(t, gr.stores.users)
@@ -104,7 +104,7 @@ func TestRepo_getUser(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.stores.users = tc.usersStore
 			r.services.users = tc.usersService
 
@@ -175,7 +175,7 @@ func TestRepo_getCommit(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.stores.commits = tc.commitsStore
 			r.services.repo = tc.repoService
 
@@ -254,7 +254,7 @@ func TestRepo_getParentCommits(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.stores.commits = tc.commitsStore
 			r.services.repo = tc.repoService
 
@@ -359,7 +359,7 @@ func TestRepo_findEvent(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.services.issues = tc.issueService
 
 			event, err := r.findEvent(tc.ctx, tc.num, tc.eventName)
@@ -397,9 +397,9 @@ func TestRepo_FutureTag(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			r := &repo{
-				logger: log.New(log.None),
-				owner:  tc.owner,
-				repo:   tc.repo,
+				ui:    ui.NewNop(),
+				owner: tc.owner,
+				repo:  tc.repo,
 			}
 
 			tag := r.FutureTag(tc.tagName)
@@ -434,9 +434,9 @@ func TestRepo_CompareURL(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			r := &repo{
-				logger: log.New(log.None),
-				owner:  tc.owner,
-				repo:   tc.repo,
+				ui:    ui.NewNop(),
+				owner: tc.owner,
+				repo:  tc.repo,
 			}
 
 			url := r.CompareURL(tc.base, tc.head)
@@ -477,7 +477,7 @@ func TestRepo_CheckPermissions(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.services.github = tc.githubService
 
 			err := r.CheckPermissions(tc.ctx)
@@ -557,7 +557,7 @@ func TestRepo_FetchFirstCommit(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.stores.commits = tc.commitsStore
 			r.services.repo = tc.repoService
 
@@ -609,7 +609,7 @@ func TestRepo_FetchBranch(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.services.repo = tc.repoService
 
 			branch, err := r.FetchBranch(tc.ctx, tc.branchName)
@@ -673,7 +673,7 @@ func TestRepo_FetchDefaultBranch(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.services.repo = tc.repoService
 
 			branch, err := r.FetchDefaultBranch(tc.ctx)
@@ -799,9 +799,9 @@ func TestRepo_FetchTags(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			r := &repo{
-				logger: log.New(log.None),
-				owner:  tc.owner,
-				repo:   tc.repo,
+				ui:    ui.NewNop(),
+				owner: tc.owner,
+				repo:  tc.repo,
 			}
 
 			r.stores.commits = tc.commitsStore
@@ -1087,7 +1087,7 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.stores.users = tc.usersStore
 			r.stores.commits = tc.commitsStore
 			r.services.users = tc.usersService
@@ -1152,7 +1152,7 @@ func TestRepo_FetchParentCommits(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := &repo{logger: log.New(log.None)}
+			r := &repo{ui: ui.NewNop()}
 			r.stores.commits = tc.commitsStore
 			r.services.repo = tc.repoService
 

@@ -5,21 +5,20 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gardenbed/charm/ui"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/gardenbed/changelog/log"
 )
 
 func TestNewRepo(t *testing.T) {
 	tests := []struct {
 		name        string
-		logger      log.Logger
+		ui          ui.UI
 		path        string
 		accessToken string
 	}{
 		{
 			name:        "OK",
-			logger:      log.New(log.None),
+			ui:          ui.New(ui.Info),
 			path:        "gardenbed/changelog",
 			accessToken: "gitlab-access-token",
 		},
@@ -27,13 +26,13 @@ func TestNewRepo(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := NewRepo(tc.logger, tc.path, tc.accessToken)
+			r := NewRepo(tc.ui, tc.path, tc.accessToken)
 			assert.NotNil(t, r)
 
 			gr, ok := r.(*repo)
 			assert.True(t, ok)
 
-			assert.Equal(t, tc.logger, gr.logger)
+			assert.Equal(t, tc.ui, gr.ui)
 			assert.NotNil(t, gr.client)
 			assert.Equal(t, tc.path, gr.path)
 			assert.Equal(t, tc.accessToken, gr.accessToken)
@@ -43,7 +42,7 @@ func TestNewRepo(t *testing.T) {
 
 func TestRepo_FutureTag(t *testing.T) {
 	r := &repo{
-		logger: log.New(log.None),
+		ui: ui.NewNop(),
 	}
 
 	tag := r.FutureTag("v0.1.0")
@@ -53,7 +52,7 @@ func TestRepo_FutureTag(t *testing.T) {
 
 func TestRepo_CompareURL(t *testing.T) {
 	r := &repo{
-		logger: log.New(log.None),
+		ui: ui.NewNop(),
 	}
 
 	url := r.CompareURL("v0.1.0", "v0.2.0")
@@ -63,7 +62,7 @@ func TestRepo_CompareURL(t *testing.T) {
 
 func TestRepo_CheckPermissions(t *testing.T) {
 	r := &repo{
-		logger: log.New(log.None),
+		ui: ui.NewNop(),
 	}
 
 	err := r.CheckPermissions(context.Background())
@@ -73,7 +72,7 @@ func TestRepo_CheckPermissions(t *testing.T) {
 
 func TestRepo_FetchFirstCommit(t *testing.T) {
 	r := &repo{
-		logger: log.New(log.None),
+		ui: ui.NewNop(),
 	}
 
 	commit, err := r.FetchFirstCommit(context.Background())
@@ -84,7 +83,7 @@ func TestRepo_FetchFirstCommit(t *testing.T) {
 
 func TestRepo_FetchBranch(t *testing.T) {
 	r := &repo{
-		logger: log.New(log.None),
+		ui: ui.NewNop(),
 	}
 
 	branch, err := r.FetchBranch(context.Background(), "main")
@@ -95,7 +94,7 @@ func TestRepo_FetchBranch(t *testing.T) {
 
 func TestRepo_FetchDefaultBranch(t *testing.T) {
 	r := &repo{
-		logger: log.New(log.None),
+		ui: ui.NewNop(),
 	}
 
 	branch, err := r.FetchDefaultBranch(context.Background())
@@ -106,7 +105,7 @@ func TestRepo_FetchDefaultBranch(t *testing.T) {
 
 func TestRepo_FetchTags(t *testing.T) {
 	r := &repo{
-		logger: log.New(log.None),
+		ui: ui.NewNop(),
 	}
 
 	tags, err := r.FetchTags(context.Background())
@@ -117,7 +116,7 @@ func TestRepo_FetchTags(t *testing.T) {
 
 func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 	r := &repo{
-		logger: log.New(log.None),
+		ui: ui.NewNop(),
 	}
 
 	issues, merges, err := r.FetchIssuesAndMerges(context.Background(), time.Now())
@@ -129,7 +128,7 @@ func TestRepo_FetchIssuesAndMerges(t *testing.T) {
 
 func TestRepo_FetchParentCommits(t *testing.T) {
 	r := &repo{
-		logger: log.New(log.None),
+		ui: ui.NewNop(),
 	}
 
 	commits, err := r.FetchParentCommits(context.Background(), "25aa2bdbaf10fa30b6db40c2c0a15d280ad9f378")

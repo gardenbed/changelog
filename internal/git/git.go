@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/gardenbed/charm/ui"
 	"github.com/go-git/go-git/v5"
-
-	"github.com/gardenbed/changelog/log"
 )
 
 var (
@@ -25,12 +24,12 @@ type Repo interface {
 }
 
 type repo struct {
-	logger log.Logger
-	git    *git.Repository
+	ui  ui.UI
+	git *git.Repository
 }
 
 // NewRepo creates a new instance of Repo.
-func NewRepo(logger log.Logger, path string) (Repo, error) {
+func NewRepo(u ui.UI, path string) (Repo, error) {
 	git, err := git.PlainOpenWithOptions(path, &git.PlainOpenOptions{
 		DetectDotGit: true,
 	})
@@ -39,18 +38,18 @@ func NewRepo(logger log.Logger, path string) (Repo, error) {
 		return nil, err
 	}
 
-	logger.Debug("Git repository found")
+	u.Debugf(ui.Cyan, "Git repository found")
 
 	return &repo{
-		logger: logger,
-		git:    git,
+		ui:  u,
+		git: git,
 	}, nil
 }
 
 // GetRemote returns the domain part and path part of a Git remote repository URL.
 // It assumes the remote repository is named origin.
 func (r *repo) GetRemote() (string, string, error) {
-	r.logger.Debug("Reading git remote URL ...")
+	r.ui.Debugf(ui.Cyan, "Reading git remote URL ...")
 
 	// TODO: Should we handle all remote names and not just the origin?
 	remote, err := r.git.Remote("origin")
@@ -68,12 +67,12 @@ func (r *repo) GetRemote() (string, string, error) {
 	if matches := httpsRE.FindStringSubmatch(remoteURL); len(matches) == 6 {
 		// Git remote url is using HTTPS protocol
 		// Example: https://github.com/gardenbed/changelog.git --> matches = []string{"https://github.com/gardenbed/changelog.git", "github.com", "gardenbed/changelog", "gardenbed/", "changelog", ".git"}
-		r.logger.Infof("Git remote URL: %s", remoteURL)
+		r.ui.Infof(ui.Green, "Git remote URL: %s", remoteURL)
 		return matches[1], matches[2], nil
 	} else if matches := sshRE.FindStringSubmatch(remoteURL); len(matches) == 6 {
 		// Git remote url is using SSH protocol
 		// Example: git@github.com:gardenbed/changelog.git --> matches = []string{"git@github.com:gardenbed/changelog.git", "github.com", "gardenbed/changelog, "gardenbed/", "changelog", ".git"}
-		r.logger.Infof("Git remote URL: %s", remoteURL)
+		r.ui.Infof(ui.Green, "Git remote URL: %s", remoteURL)
 		return matches[1], matches[2], nil
 	}
 
