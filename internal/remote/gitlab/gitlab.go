@@ -5,27 +5,28 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gardenbed/charm/ui"
+
 	"github.com/gardenbed/changelog/internal/remote"
-	"github.com/gardenbed/changelog/log"
 )
 
 // repo implements the remote.Repo interface for GitLab.
 type repo struct {
-	logger      log.Logger
+	ui          ui.UI
 	client      *http.Client
 	path        string
 	accessToken string
 }
 
 // NewRepo creates a new GitLab repository.
-func NewRepo(logger log.Logger, path, accessToken string) remote.Repo {
+func NewRepo(ui ui.UI, path, accessToken string) remote.Repo {
 	transport := &http.Transport{}
 	client := &http.Client{
 		Transport: transport,
 	}
 
 	return &repo{
-		logger:      logger,
+		ui:          ui,
 		client:      client,
 		path:        path,
 		accessToken: accessToken,

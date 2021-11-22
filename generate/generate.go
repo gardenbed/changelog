@@ -8,26 +8,27 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gardenbed/charm/ui"
+
 	"github.com/gardenbed/changelog/internal/changelog"
 	"github.com/gardenbed/changelog/internal/changelog/markdown"
 	"github.com/gardenbed/changelog/internal/remote"
 	"github.com/gardenbed/changelog/internal/remote/github"
 	"github.com/gardenbed/changelog/internal/remote/gitlab"
-	"github.com/gardenbed/changelog/log"
 	"github.com/gardenbed/changelog/spec"
 )
 
 // Generator is the changelog generator.
 type Generator struct {
-	logger     log.Logger
+	ui         ui.UI
 	remoteRepo remote.Repo
 	processor  changelog.Processor
 }
 
 // New creates a new changelog generator.
-func New(s spec.Spec, logger log.Logger) (*Generator, error) {
-	if logger == nil {
-		logger = log.New(log.None)
+func New(s spec.Spec, u ui.UI) (*Generator, error) {
+	if u == nil {
+		u = ui.NewNop()
 	}
 
 	var remoteRepo remote.Repo
@@ -37,16 +38,16 @@ func New(s spec.Spec, logger log.Logger) (*Generator, error) {
 		if len(parts) != 2 {
 			return nil, errors.New("unexpected GitHub repository: cannot parse owner and repo")
 		}
-		remoteRepo = github.NewRepo(logger, parts[0], parts[1], s.Repo.AccessToken)
+		remoteRepo = github.NewRepo(u, parts[0], parts[1], s.Repo.AccessToken)
 
 	case spec.PlatformGitLab:
-		remoteRepo = gitlab.NewRepo(logger, s.Repo.Path, s.Repo.AccessToken)
+		remoteRepo = gitlab.NewRepo(u, s.Repo.Path, s.Repo.AccessToken)
 	}
 
 	return &Generator{
-		logger:     logger,
+		ui:         u,
 		remoteRepo: remoteRepo,
-		processor:  markdown.NewProcessor(logger, s.General.Base, s.General.File),
+		processor:  markdown.NewProcessor(u, s.General.Base, s.General.File),
 	}, nil
 }
 
@@ -55,7 +56,7 @@ func New(s spec.Spec, logger log.Logger) (*Generator, error) {
 // Similarly, chlog.Existing are expected to be sorted from the most recent to the least recent.
 // The return value is the list of new tags for generating changelog for them.
 func (g *Generator) resolveTags(s spec.Tags, sortedTags remote.Tags, chlog *changelog.Changelog) (remote.Tags, error) {
-	g.logger.Debug("Resolving new tags for changelog ...")
+	g.ui.Debugf(ui.Cyan, "Resolving new tags for changelog ...")
 
 	mapFunc := func(t remote.Tag) string {
 		return t.Name
@@ -102,7 +103,7 @@ func (g *Generator) resolveTags(s spec.Tags, sortedTags remote.Tags, chlog *chan
 		newTags = append(remote.Tags{futureTag}, newTags...)
 	}
 
-	g.logger.Infof("Resolved new tags for changelog: %s", newTags.Map(mapFunc))
+	g.ui.Infof(ui.Green, "Resolved new tags for changelog: %s", newTags.Map(mapFunc))
 
 	return newTags, nil
 }
@@ -183,7 +184,7 @@ func (g *Generator) resolveReleases(ctx context.Context, s spec.Spec, sortedTags
 			switch s.Issues.Grouping {
 			case spec.GroupingMilestone:
 				milestones := issues.Milestones()
-				g.logger.Debugf("Grouping issues by milestones %s ...", milestones)
+				g.ui.Debugf(ui.Cyan, "Grouping issues by milestones %s ...", milestones)
 
 				for _, milestone := range milestones {
 					f := func(i remote.Issue) bool {
@@ -201,7 +202,7 @@ func (g *Generator) resolveReleases(ctx context.Context, s spec.Spec, sortedTags
 				}
 
 			case spec.GroupingLabel:
-				g.logger.Debug("Grouping issues by labels ...")
+				g.ui.Debugf(ui.Cyan, "Grouping issues by labels ...")
 
 				for _, group := range s.Issues.LabelGroups() {
 					f := func(i remote.Issue) bool {
@@ -231,7 +232,7 @@ func (g *Generator) resolveReleases(ctx context.Context, s spec.Spec, sortedTags
 			switch s.Merges.Grouping {
 			case spec.GroupingMilestone:
 				milestones := merges.Milestones()
-				g.logger.Debug("Grouping merges by milestones %s ...", milestones)
+				g.ui.Debugf(ui.Cyan, "Grouping merges by milestones %s ...", milestones)
 
 				for _, milestone := range milestones {
 					f := func(m remote.Merge) bool {
@@ -249,7 +250,7 @@ func (g *Generator) resolveReleases(ctx context.Context, s spec.Spec, sortedTags
 				}
 
 			case spec.GroupingLabel:
-				g.logger.Debug("Grouping merges by labels ...")
+				g.ui.Debugf(ui.Cyan, "Grouping merges by labels ...")
 
 				for _, group := range s.Merges.LabelGroups() {
 					f := func(m remote.Merge) bool {
@@ -311,7 +312,7 @@ func (g *Generator) Generate(ctx context.Context, s spec.Spec) (string, error) {
 		return "", err
 	}
 
-	g.logger.Info("Sorting and filtering git tags ...")
+	g.ui.Infof(ui.Green, "Sorting and filtering git tags ...")
 
 	sortedTags := tags.Sort()
 	sortedTags = sortedTags.Exclude(s.Tags.Exclude...)
@@ -330,7 +331,7 @@ func (g *Generator) Generate(ctx context.Context, s spec.Spec) (string, error) {
 	}
 
 	if len(newTags) == 0 {
-		g.logger.Info("Changelog is up-to-date (no new tag or a future tag)")
+		g.ui.Infof(ui.Green, "Changelog is up-to-date (no new tag or a future tag)")
 		return "", nil
 	}
 
@@ -370,16 +371,16 @@ func (g *Generator) Generate(ctx context.Context, s spec.Spec) (string, error) {
 	}
 
 	sortedIssues, sortedMerges := filterByLabels(s, issues, merges)
-	g.logger.Infof("Filtered issues (%d) and pull/merge requests (%d)", len(sortedIssues), len(sortedMerges))
+	g.ui.Infof(ui.Green, "Filtered issues (%d) and pull/merge requests (%d)", len(sortedIssues), len(sortedMerges))
 
 	// We need to resolve the issue map with all sorted tags, so issues will not be misassigned to new tags
 	possibleFutureTag := newTags[0]
 	issueMap := resolveIssueMap(sortedIssues, sortedTags, possibleFutureTag)
 	mergeMap := resolveMergeMap(sortedMerges, commitMap, possibleFutureTag)
-	g.logger.Info("Partitioned issues and pull/merge requests by tag")
+	g.ui.Infof(ui.Green, "Partitioned issues and pull/merge requests by tag")
 
 	chlog.New = g.resolveReleases(ctx, s, newTags, baseRev, issueMap, mergeMap)
-	g.logger.Info("Grouped issues and pull/merge requests")
+	g.ui.Infof(ui.Green, "Grouped issues and pull/merge requests")
 
 	// ==============================> UPDATE THE CHANGELOG <==============================
 

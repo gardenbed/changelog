@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gardenbed/charm/ui"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/gardenbed/changelog/internal/changelog"
 	"github.com/gardenbed/changelog/internal/remote"
-	"github.com/gardenbed/changelog/log"
 	"github.com/gardenbed/changelog/spec"
-
-	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -212,7 +212,7 @@ func TestNew(t *testing.T) {
 	tests := []struct {
 		name          string
 		s             spec.Spec
-		logger        log.Logger
+		ui            ui.UI
 		expectedError string
 	}{
 		{
@@ -223,7 +223,7 @@ func TestNew(t *testing.T) {
 					Path:     "octocat/invalid/Hello-World",
 				},
 			},
-			logger:        nil,
+			ui:            nil,
 			expectedError: "unexpected GitHub repository: cannot parse owner and repo",
 		},
 		{
@@ -234,7 +234,7 @@ func TestNew(t *testing.T) {
 					Path:     "octocat/Hello-World",
 				},
 			},
-			logger:        log.New(log.None),
+			ui:            ui.New(ui.Info),
 			expectedError: "",
 		},
 		{
@@ -244,21 +244,21 @@ func TestNew(t *testing.T) {
 					Platform: spec.PlatformGitLab,
 				},
 			},
-			logger:        log.New(log.None),
+			ui:            ui.New(ui.Info),
 			expectedError: "",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			g, err := New(tc.s, tc.logger)
+			g, err := New(tc.s, tc.ui)
 
 			if tc.expectedError != "" {
 				assert.Nil(t, g)
 				assert.EqualError(t, err, tc.expectedError)
 			} else {
 				assert.NotNil(t, g)
-				assert.Equal(t, tc.logger, g.logger)
+				assert.Equal(t, tc.ui, g.ui)
 				assert.NotNil(t, g.remoteRepo)
 				assert.NotNil(t, g.processor)
 			}
@@ -303,7 +303,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "NoGitTag_NoChangelogTag_NoFutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s:             spec.Tags{},
 			sortedTags:    remote.Tags{},
@@ -314,7 +314,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "NoGitTag_NoChangelogTag_FutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FutureTagMocks: []FutureTagMock{
 						{OutTag: futureTag1},
@@ -332,7 +332,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "GitTag_NoChangelogTag_NoFutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s:             spec.Tags{},
 			sortedTags:    remote.Tags{tag1},
@@ -343,7 +343,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "GitTag_NoChangelogTag_FutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FutureTagMocks: []FutureTagMock{
 						{OutTag: futureTag2},
@@ -361,7 +361,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "SameGitTag_SameChangelogTag_NoFutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s:          spec.Tags{},
 			sortedTags: remote.Tags{tag1},
@@ -376,7 +376,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "SameGitTag_SameChangelogTag_FutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FutureTagMocks: []FutureTagMock{
 						{OutTag: futureTag2},
@@ -398,7 +398,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "NewGitTag_ChangelogTag_NoFutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s:          spec.Tags{},
 			sortedTags: remote.Tags{tag2, tag1},
@@ -413,7 +413,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "NewGitTag_ChangelogTag_FutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FutureTagMocks: []FutureTagMock{
 						{OutTag: futureTag3},
@@ -435,7 +435,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "InvalidFromTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s: spec.Tags{
 				From: "invalid",
@@ -452,7 +452,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "InvalidToTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s: spec.Tags{
 				To: "invalid",
@@ -469,7 +469,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "FromTag_Before_NewTags",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s: spec.Tags{
 				From: "v0.1.1",
@@ -486,7 +486,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "FromTag_After_ToTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s: spec.Tags{
 				From: "v0.1.3",
@@ -504,7 +504,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "FromTag_Equal_ToTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s: spec.Tags{
 				From: "v0.1.2",
@@ -522,7 +522,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "FromTag_Before_ToTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 			},
 			s: spec.Tags{
 				From: "v0.1.2",
@@ -540,7 +540,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "InvalidFutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FutureTagMocks: []FutureTagMock{
 						{OutTag: futureTag4},
@@ -564,7 +564,7 @@ func TestGenerator_resolveTags(t *testing.T) {
 		{
 			name: "FromTag_ToTag_FutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FutureTagMocks: []FutureTagMock{
 						{OutTag: futureTag4},
@@ -610,7 +610,7 @@ func TestGenerator_resolveCommitMap(t *testing.T) {
 		{
 			name: "FetchParentCommitsFails_Branch",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FetchParentCommitsMocks: []FetchParentCommitsMock{
 						{OutError: errors.New("error on fetching parent commits for branch")},
@@ -625,7 +625,7 @@ func TestGenerator_resolveCommitMap(t *testing.T) {
 		{
 			name: "FetchParentCommitsFails_FirstTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FetchParentCommitsMocks: []FetchParentCommitsMock{
 						{OutCommits: remote.Commits{commit3, commit2, commit1}},
@@ -641,7 +641,7 @@ func TestGenerator_resolveCommitMap(t *testing.T) {
 		{
 			name: "FetchParentCommitsFails_SecondTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FetchParentCommitsMocks: []FetchParentCommitsMock{
 						{OutCommits: remote.Commits{commit3, commit2, commit1}},
@@ -658,7 +658,7 @@ func TestGenerator_resolveCommitMap(t *testing.T) {
 		{
 			name: "Success",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					FetchParentCommitsMocks: []FetchParentCommitsMock{
 						{OutCommits: remote.Commits{commit3, commit2, commit1}},
@@ -724,7 +724,7 @@ func TestGenerator_resolveReleases(t *testing.T) {
 		{
 			name: "WithoutFutureTag_GroupingMilestone",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					CompareURLMocks: []CompareURLMock{
 						{OutString: "https://github.com/octocat/Hello-World/compare/v0.1.2...v0.1.3"},
@@ -776,7 +776,7 @@ func TestGenerator_resolveReleases(t *testing.T) {
 		{
 			name: "WithoutFutureTag_GroupingLabel",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					CompareURLMocks: []CompareURLMock{
 						{OutString: "https://github.com/octocat/Hello-World/compare/v0.1.2...v0.1.3"},
@@ -830,7 +830,7 @@ func TestGenerator_resolveReleases(t *testing.T) {
 		{
 			name: "WithFutureTag_GroupingMilestone",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					CompareURLMocks: []CompareURLMock{
 						{OutString: "https://github.com/octocat/Hello-World/compare/v0.1.3...v0.1.4"},
@@ -904,7 +904,7 @@ func TestGenerator_resolveReleases(t *testing.T) {
 		{
 			name: "WithFutureTag_GroupingLabel",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				remoteRepo: &MockRemoteRepo{
 					CompareURLMocks: []CompareURLMock{
 						{OutString: "https://github.com/octocat/Hello-World/compare/v0.1.3...v0.1.4"},
@@ -1000,7 +1000,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "ParseFails",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutError: errors.New("error on parsing the changelog file")},
@@ -1014,7 +1014,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "CheckPermissionsFails",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1033,7 +1033,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "FetchBranchFails",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1059,7 +1059,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "FetchDefaultBranchFails",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1081,7 +1081,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "FetchTagsFails",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1106,7 +1106,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "NoNewTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1131,7 +1131,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "FetchFirstCommitFails",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1159,7 +1159,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "FetchParentCommitsFails_Branch",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1190,7 +1190,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "FetchParentCommitsFails_Tag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1222,7 +1222,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "FetchIssuesAndMergesFails",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1257,7 +1257,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "RenderFails",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1301,7 +1301,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "Success_ToTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},
@@ -1345,7 +1345,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "Success_FromAndToTags",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{
@@ -1395,7 +1395,7 @@ func TestGenerator_Generate(t *testing.T) {
 		{
 			name: "Success_FutureTag",
 			g: &Generator{
-				logger: log.New(log.None),
+				ui: ui.NewNop(),
 				processor: &MockChangelogProcessor{
 					ParseMocks: []ParseMock{
 						{OutChangelog: &changelog.Changelog{}},

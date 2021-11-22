@@ -3,28 +3,27 @@ package git
 import (
 	"testing"
 
+	"github.com/gardenbed/charm/ui"
 	"github.com/go-git/go-git/v5"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/gardenbed/changelog/log"
 )
 
 func TestNewRepo(t *testing.T) {
 	tests := []struct {
 		name          string
-		logger        log.Logger
+		ui            ui.UI
 		path          string
 		expectedError string
 	}{
 		{
 			name:          "Failure",
-			logger:        log.New(log.None),
+			ui:            ui.New(ui.Info),
 			path:          "/dev/null",
 			expectedError: "repository does not exist",
 		},
 		{
 			name:          "Success",
-			logger:        log.New(log.None),
+			ui:            ui.New(ui.Info),
 			path:          ".",
 			expectedError: "",
 		},
@@ -32,7 +31,7 @@ func TestNewRepo(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r, err := NewRepo(tc.logger, tc.path)
+			r, err := NewRepo(tc.ui, tc.path)
 
 			if tc.expectedError != "" {
 				assert.Nil(t, r)
@@ -71,8 +70,8 @@ func TestRepo_GetRemote(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			r := &repo{
-				logger: log.New(log.None),
-				git:    g,
+				ui:  ui.NewNop(),
+				git: g,
 			}
 
 			domain, path, err := r.GetRemote()

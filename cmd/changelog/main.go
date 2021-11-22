@@ -3,46 +3,50 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/gardenbed/charm/flagit"
+	"github.com/gardenbed/charm/ui"
 
 	"github.com/gardenbed/changelog/generate"
 	"github.com/gardenbed/changelog/internal/git"
-	"github.com/gardenbed/changelog/log"
 	"github.com/gardenbed/changelog/metadata"
 	"github.com/gardenbed/changelog/spec"
 )
 
 func main() {
-	// We cannot enable the logger until the verbosity is known
-	logger := log.New(log.None)
+	// We will change the verbosity level once it is known
+	u := ui.New(ui.None)
 
 	// READING SPEC
 
 	s, err := spec.Default().FromFile()
 	if err != nil {
-		logger.Fatal(err)
+		u.Errorf(ui.Red, "%s", err)
+		os.Exit(1)
 	}
 
 	if err := flagit.Parse(&s, false); err != nil {
-		logger.Fatal(err)
+		u.Errorf(ui.Red, "%s", err)
+		os.Exit(1)
 	}
 
 	// Update logger verbosity
 	if s.General.Verbose {
-		logger.ChangeVerbosity(log.Debug)
+		u.SetLevel(ui.Debug)
 	} else if !s.General.Print {
-		logger.ChangeVerbosity(log.Info)
+		u.SetLevel(ui.Info)
 	}
 
-	logger.Debug(s)
+	u.Debugf(ui.Cyan, "%s", s)
 
 	// RUNNING COMMANDS
 
 	switch {
 	case s.Help:
 		if err := s.PrintHelp(); err != nil {
-			logger.Fatal(err)
+			u.Errorf(ui.Red, "%s", err)
+			os.Exit(1)
 		}
 
 	case s.Version:
@@ -51,26 +55,30 @@ func main() {
 	default:
 		// Retrieve git repo informatin
 
-		gitRepo, err := git.NewRepo(logger, ".")
+		gitRepo, err := git.NewRepo(u, ".")
 		if err != nil {
-			logger.Fatal(err)
+			u.Errorf(ui.Red, "%s", err)
+			os.Exit(1)
 		}
 
 		domain, path, err := gitRepo.GetRemote()
 		if err != nil {
-			logger.Fatal(err)
+			u.Errorf(ui.Red, "%s", err)
+			os.Exit(1)
 		}
 		s = s.WithRepo(domain, path)
 
-		g, err := generate.New(s, logger)
+		g, err := generate.New(s, u)
 		if err != nil {
-			logger.Fatal(err)
+			u.Errorf(ui.Red, "%s", err)
+			os.Exit(1)
 		}
 
 		ctx := context.Background()
 
 		if _, err := g.Generate(ctx, s); err != nil {
-			logger.Fatal(err)
+			u.Errorf(ui.Red, "%s", err)
+			os.Exit(1)
 		}
 	}
 }

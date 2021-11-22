@@ -7,10 +7,10 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/gardenbed/charm/ui"
 	"github.com/gardenbed/go-github"
 
 	"github.com/gardenbed/changelog/internal/remote"
-	"github.com/gardenbed/changelog/log"
 )
 
 const pageSize = 100
@@ -40,7 +40,7 @@ type (
 
 // repo implements the remote.Repo interface for GitHub.
 type repo struct {
-	logger log.Logger
+	ui     ui.UI
 	owner  string
 	repo   string
 	stores struct {
@@ -56,14 +56,14 @@ type repo struct {
 }
 
 // NewRepo creates a new GitHub repository.
-func NewRepo(logger log.Logger, ownerName, repoName, accessToken string) remote.Repo {
+func NewRepo(ui ui.UI, ownerName, repoName, accessToken string) remote.Repo {
 	client := github.NewClient(accessToken)
 	repoService := client.Repo(ownerName, repoName)
 
 	r := &repo{
-		logger: logger,
-		owner:  ownerName,
-		repo:   repoName,
+		ui:    ui,
+		owner: ownerName,
+		repo:  repoName,
 	}
 
 	r.stores.users = newStore()
@@ -140,7 +140,7 @@ func (r *repo) findEvent(ctx context.Context, num int, name string) (github.Even
 
 		for _, e := range events {
 			if e.Event == name {
-				r.logger.Debugf("Found %s event for issue %d", name, num)
+				r.ui.Debugf(ui.Cyan, "Found %s event for issue %d", name, num)
 				return e, nil
 			}
 		}
@@ -168,19 +168,18 @@ func (r *repo) CompareURL(base, head string) string {
 
 // CheckPermissions ensures the client has all the required permissions for a GitHub repository.
 func (r *repo) CheckPermissions(ctx context.Context) error {
-	err := r.services.github.EnsureScopes(ctx, github.ScopeRepo)
-	if err != nil {
+	if err := r.services.github.EnsureScopes(ctx, github.ScopeRepo); err != nil {
 		return err
 	}
 
-	r.logger.Debugf("GitHub token scopes verified: %s", github.ScopeRepo)
+	r.ui.Debugf(ui.Cyan, "GitHub token scopes verified: %s", github.ScopeRepo)
 
 	return nil
 }
 
 // FetchFirstCommit retrieves the firist/initial commit for a GitHub repository.
 func (r *repo) FetchFirstCommit(ctx context.Context) (remote.Commit, error) {
-	r.logger.Debug("Fetching the first GitHub commit ...")
+	r.ui.Debugf(ui.Cyan, "Fetching the first GitHub commit ...")
 
 	var c github.Commit
 
@@ -206,7 +205,7 @@ func (r *repo) FetchFirstCommit(ctx context.Context) (remote.Commit, error) {
 
 	commit := toCommit(c)
 
-	r.logger.Debugf("Fetched the first GitHub commit: %s", commit)
+	r.ui.Debugf(ui.Cyan, "Fetched the first GitHub commit: %s", commit)
 
 	return commit, nil
 }
@@ -220,7 +219,7 @@ func (r *repo) FetchBranch(ctx context.Context, name string) (remote.Branch, err
 
 	branch := toBranch(*b)
 
-	r.logger.Debugf("Fetched GitHub branch: %s", name)
+	r.ui.Debugf(ui.Cyan, "Fetched GitHub branch: %s", name)
 
 	return branch, nil
 }
@@ -239,21 +238,21 @@ func (r *repo) FetchDefaultBranch(ctx context.Context) (remote.Branch, error) {
 
 	branch := toBranch(*b)
 
-	r.logger.Debugf("Fetched GitHub default branch: %s", b.Name)
+	r.ui.Debugf(ui.Cyan, "Fetched GitHub default branch: %s", b.Name)
 
 	return branch, nil
 }
 
 // FetchTags retrieves all tags for a GitHub repository.
 func (r *repo) FetchTags(ctx context.Context) (remote.Tags, error) {
-	r.logger.Debug("Fetching GitHub tags ...")
+	r.ui.Debugf(ui.Cyan, "Fetching GitHub tags ...")
 
 	// ==============================> FETCH TAGS <==============================
 
 	tagStore := newStore()
 
 	// Fetch tags
-	r.logger.Debug("Fetched GitHub tags page 1 ...")
+	r.ui.Debugf(ui.Cyan, "Fetched GitHub tags page 1 ...")
 	gitHubTags, resp, err := r.services.repo.Tags(ctx, pageSize, 1)
 	if err != nil {
 		return nil, err
@@ -268,7 +267,7 @@ func (r *repo) FetchTags(ctx context.Context) (remote.Tags, error) {
 	for p := 2; p <= resp.Pages.Last; p++ {
 		p := p // https://golang.org/doc/faq#closures_and_goroutines
 		g1.Go(func() error {
-			r.logger.Debugf("Fetched GitHub tags page %d ...", p)
+			r.ui.Debugf(ui.Cyan, "Fetched GitHub tags page %d ...", p)
 			gitHubTags, _, err := r.services.repo.Tags(ctx1, pageSize, p)
 			if err != nil {
 				return err
@@ -286,7 +285,7 @@ func (r *repo) FetchTags(ctx context.Context) (remote.Tags, error) {
 
 	// ==============================> FETCH TAG COMMITS <==============================
 
-	r.logger.Debug("Fetching GitHub commits for tags ...")
+	r.ui.Debugf(ui.Cyan, "Fetching GitHub commits for tags ...")
 
 	g2, ctx2 := errgroup.WithContext(ctx)
 
@@ -308,7 +307,7 @@ func (r *repo) FetchTags(ctx context.Context) (remote.Tags, error) {
 
 	tags := resolveTags(tagStore, r.stores.commits, r.owner, r.repo)
 
-	r.logger.Debugf("GitHub tags are fetched: %d", len(tags))
+	r.ui.Debugf(ui.Cyan, "GitHub tags are fetched: %d", len(tags))
 
 	return tags, nil
 }
@@ -316,9 +315,9 @@ func (r *repo) FetchTags(ctx context.Context) (remote.Tags, error) {
 // FetchIssuesAndMerges retrieves all closed issues and merged pull requests for a GitHub repository.
 func (r *repo) FetchIssuesAndMerges(ctx context.Context, since time.Time) (remote.Issues, remote.Merges, error) {
 	if since.IsZero() {
-		r.logger.Info("Fetching GitHub issues since the beginning ...")
+		r.ui.Infof(ui.Green, "Fetching GitHub issues since the beginning ...")
 	} else {
-		r.logger.Infof("Fetching GitHub issues since %s ...", since.Format(time.RFC3339))
+		r.ui.Infof(ui.Green, "Fetching GitHub issues since %s ...", since.Format(time.RFC3339))
 	}
 
 	// ==============================> FETCH ISSUES <==============================
@@ -330,7 +329,7 @@ func (r *repo) FetchIssuesAndMerges(ctx context.Context, since time.Time) (remot
 	}
 
 	// Fetch closed issues
-	r.logger.Debug("Fetched GitHub issues page 1 ...")
+	r.ui.Debugf(ui.Cyan, "Fetched GitHub issues page 1 ...")
 	gitHubIssues, resp, err := r.services.issues.List(ctx, pageSize, 1, filter)
 	if err != nil {
 		return nil, nil, err
@@ -345,7 +344,7 @@ func (r *repo) FetchIssuesAndMerges(ctx context.Context, since time.Time) (remot
 	for p := 2; p <= resp.Pages.Last; p++ {
 		p := p // https://golang.org/doc/faq#closures_and_goroutines
 		g1.Go(func() error {
-			r.logger.Debugf("Fetched GitHub issues page %d ...", p)
+			r.ui.Debugf(ui.Cyan, "Fetched GitHub issues page %d ...", p)
 			gitHubIssues, _, err := r.services.issues.List(ctx1, pageSize, p, filter)
 			if err != nil {
 				return err
@@ -361,11 +360,11 @@ func (r *repo) FetchIssuesAndMerges(ctx context.Context, since time.Time) (remot
 		return nil, nil, err
 	}
 
-	r.logger.Debugf("Fetched GitHub issues: %d", issueStore.Len())
+	r.ui.Debugf(ui.Cyan, "Fetched GitHub issues: %d", issueStore.Len())
 
 	// ==============================> FETCH EVENTS & COMMITS <==============================
 
-	r.logger.Debug("Fetching GitHub events and commits for issues and pull requests ...")
+	r.ui.Debugf(ui.Cyan, "Fetching GitHub events and commits for issues and pull requests ...")
 
 	eventStore := newStore()
 
@@ -414,7 +413,7 @@ func (r *repo) FetchIssuesAndMerges(ctx context.Context, since time.Time) (remot
 
 	// ==============================> FETCH USERS <==============================
 
-	r.logger.Debug("Fetching GitHub users for issues and pull requests ...")
+	r.ui.Debugf(ui.Cyan, "Fetching GitHub users for issues and pull requests ...")
 
 	// Fetch author users for issues and pull requests
 	err = issueStore.ForEach(func(k, v interface{}) error {
@@ -449,22 +448,22 @@ func (r *repo) FetchIssuesAndMerges(ctx context.Context, since time.Time) (remot
 
 	issues, merges := resolveIssuesAndMerges(issueStore, eventStore, r.stores.commits, r.stores.users)
 
-	r.logger.Debugf("Resolved and sorted GitHub issues (%d) and pull requests (%d)", len(issues), len(merges))
-	r.logger.Infof("All GitHub issues (%d) and pull requests (%d) are fetched", len(issues), len(merges))
+	r.ui.Debugf(ui.Cyan, "Resolved and sorted GitHub issues (%d) and pull requests (%d)", len(issues), len(merges))
+	r.ui.Infof(ui.Green, "All GitHub issues (%d) and pull requests (%d) are fetched", len(issues), len(merges))
 
 	return issues, merges, nil
 }
 
 // FetchParentCommits retrieves all parent commits of a given commit hash for a GitHub repository.
 func (r *repo) FetchParentCommits(ctx context.Context, ref string) (remote.Commits, error) {
-	r.logger.Debugf("Fetching all GitHub parent commits for %s ...", ref)
+	r.ui.Debugf(ui.Cyan, "Fetching all GitHub parent commits for %s ...", ref)
 
 	commits := remote.Commits{}
 	if err := r.getParentCommits(ctx, &commits, ref); err != nil {
 		return nil, err
 	}
 
-	r.logger.Debugf("All GitHub parent commits for %s are fetched", ref)
+	r.ui.Debugf(ui.Cyan, "All GitHub parent commits for %s are fetched", ref)
 
 	return commits, nil
 }
