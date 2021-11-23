@@ -31,7 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Update logger verbosity
+	// Update verbosity level
 	if s.General.Verbose {
 		u.SetLevel(ui.Debug)
 	} else if !s.General.Print {
