@@ -8,7 +8,7 @@ require (
 	github.com/gardenbed/go-github v0.1.1
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/stretchr/testify v1.8.0
-	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
+	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7
 	gopkg.in/yaml.v3 v3.0.1
 )
 
