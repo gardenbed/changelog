@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -48,7 +47,7 @@ var (
 	h2Regex = regexp.MustCompile(`^## \[([0-9A-Za-z-.]+)\]\(([0-9A-Za-z-.:/]+)\) \((\d{4}-\d{2}-\d{2})\)$`)
 
 	funcMap = template.FuncMap{
-		"title": strings.Title,
+		"title": strings.Title, // nolint directives: sa1019
 		"time": func(t time.Time) string {
 			return t.Format(timeLayout)
 		},
@@ -166,7 +165,7 @@ func (p *processor) Render(chlog *changelog.Changelog) (string, error) {
 		if p.baseFile != "" {
 			p.ui.Infof(ui.Green, "Adding the base file content to the changelog: %s", p.baseFile)
 
-			b, err := ioutil.ReadFile(p.baseFile)
+			b, err := os.ReadFile(p.baseFile)
 			if err != nil {
 				return "", err
 			}
