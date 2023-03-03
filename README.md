@@ -48,7 +48,7 @@ For other platforms, you can download the binary from the [latest release](https
 ### Examples
 
 ```bash
-# Simply generated a changelog
+# Simply generate a changelog
 changelog -access-token=$GITHUB_TOKEN
 
 # Assign unreleased changes (changes without a tag) to a future tag that has not been yet created.
