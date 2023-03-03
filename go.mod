@@ -1,13 +1,13 @@
 module github.com/gardenbed/changelog
 
-go 1.19
+go 1.20
 
 require (
 	github.com/fatih/color v1.14.1
 	github.com/gardenbed/charm v0.1.3
 	github.com/gardenbed/go-github v0.1.1
-	github.com/go-git/go-git/v5 v5.5.2
-	github.com/stretchr/testify v1.8.1
+	github.com/go-git/go-git/v5 v5.6.0
+	github.com/stretchr/testify v1.8.2
 	golang.org/x/sync v0.1.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -26,7 +26,7 @@ require (
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
-	github.com/pjbgf/sha1cd v0.2.3 // indirect
+	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/skeema/knownhosts v1.1.0 // indirect

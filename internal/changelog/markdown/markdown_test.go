@@ -1,7 +1,6 @@
 package markdown
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -279,7 +278,7 @@ func TestProcessor_Render(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			f, err := ioutil.TempFile("", "changelog_test_")
+			f, err := os.CreateTemp("", "changelog_test_")
 			assert.NoError(t, err)
 			defer os.Remove(f.Name())
 
@@ -291,7 +290,7 @@ func TestProcessor_Render(t *testing.T) {
 			_, err = tc.p.Render(tc.chlog)
 			assert.Equal(t, tc.expectedError, err)
 
-			b, err := ioutil.ReadFile(tc.p.changelogFile)
+			b, err := os.ReadFile(tc.p.changelogFile)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedChangelog, string(b))
 		})
