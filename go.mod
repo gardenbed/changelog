@@ -3,7 +3,7 @@ module github.com/gardenbed/changelog
 go 1.20
 
 require (
-	github.com/fatih/color v1.14.1
+	github.com/fatih/color v1.15.0
 	github.com/gardenbed/charm v0.1.3
 	github.com/gardenbed/go-github v0.1.1
 	github.com/go-git/go-git/v5 v5.6.0
@@ -33,6 +33,6 @@ require (
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
 	golang.org/x/net v0.2.0 // indirect
-	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
