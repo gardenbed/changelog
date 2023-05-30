@@ -7,7 +7,7 @@ require (
 	github.com/gardenbed/charm v0.1.3
 	github.com/gardenbed/go-github v0.1.1
 	github.com/go-git/go-git/v5 v5.7.0
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	golang.org/x/sync v0.2.0
 	gopkg.in/yaml.v3 v3.0.1
 )
