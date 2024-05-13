@@ -3,7 +3,7 @@ module github.com/gardenbed/changelog
 go 1.22.2
 
 require (
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 	github.com/gardenbed/charm v0.1.3
 	github.com/gardenbed/go-github v0.1.1
 	github.com/go-git/go-git/v5 v5.12.0
