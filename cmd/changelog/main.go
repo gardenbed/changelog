@@ -31,7 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Update verbosity level
+	// Update the verbosity level
 	if s.General.Verbose {
 		u.SetLevel(ui.Debug)
 	} else if !s.General.Print {
@@ -53,7 +53,7 @@ func main() {
 		fmt.Println(metadata.String())
 
 	default:
-		// Retrieve git repo informatin
+		// Retrieve git repo information
 
 		gitRepo, err := git.NewRepo(u, ".")
 		if err != nil {
