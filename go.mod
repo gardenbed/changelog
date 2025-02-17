@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/fatih/color v1.18.0
-	github.com/gardenbed/charm v0.1.4
+	github.com/gardenbed/charm v0.2.0
 	github.com/gardenbed/go-github v0.1.2
 	github.com/go-git/go-git/v5 v5.13.2
 	github.com/stretchr/testify v1.10.0
