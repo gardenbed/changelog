@@ -1,3 +1,4 @@
+// Package remote represent a remote repository abstraction.
 package remote
 
 import (

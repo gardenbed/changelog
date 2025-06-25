@@ -280,7 +280,10 @@ func TestProcessor_Render(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			f, err := os.CreateTemp("", "changelog_test_")
 			assert.NoError(t, err)
-			defer os.Remove(f.Name())
+
+			defer func() {
+				assert.NoError(t, os.Remove(f.Name()))
+			}()
 
 			tc.p.changelogFile = f.Name()
 

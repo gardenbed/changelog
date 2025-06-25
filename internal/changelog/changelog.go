@@ -1,3 +1,4 @@
+// Package changelog provides common functionality for managing changelogs.
 package changelog
 
 import "time"

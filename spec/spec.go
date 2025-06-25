@@ -1,3 +1,4 @@
+// Package spec represents and manages the specifications for the changelog tool.
 package spec
 
 import (
@@ -448,7 +449,10 @@ func (s Spec) FromFile() (Spec, error) {
 			}
 			return Spec{}, err
 		}
-		defer f.Close()
+
+		defer func() {
+			_ = f.Close()
+		}()
 
 		if err = yaml.NewDecoder(f).Decode(&s); err != nil {
 			return Spec{}, err
