@@ -1,3 +1,4 @@
+// Package generate implements the changelog generation logic.
 package generate
 
 import (

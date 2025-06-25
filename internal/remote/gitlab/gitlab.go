@@ -1,3 +1,4 @@
+// Package gitlab provides functionality to interact with GitLab repositories.
 package gitlab
 
 import (

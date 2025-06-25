@@ -1,3 +1,4 @@
+// Package markdown provides functionality to process changelogs in Markdown format.
 package markdown
 
 import (
@@ -95,7 +96,10 @@ func (p *processor) Parse(opts changelog.ParseOptions) (*changelog.Changelog, er
 		}
 		return nil, err
 	}
-	defer f.Close()
+
+	defer func() {
+		_ = f.Close()
+	}()
 
 	p.ui.Debugf(ui.Cyan, "Parsing %s ...", p.changelogFile)
 
@@ -155,7 +159,10 @@ func (p *processor) Render(chlog *changelog.Changelog) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
+
+	defer func() {
+		_ = f.Close()
+	}()
 
 	if i := strings.Index(p.content, "##"); i >= 0 {
 		p.content = p.content[:i] + newContent + p.content[i:]

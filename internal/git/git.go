@@ -1,3 +1,4 @@
+// Package git provides functionality to interact with Git repositories.
 package git
 
 import (

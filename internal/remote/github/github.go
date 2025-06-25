@@ -1,3 +1,4 @@
+// Package github provides functionality to interact with GitHub repositories.
 package github
 
 import (

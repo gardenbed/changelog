@@ -115,9 +115,11 @@ func TestFormat_GetReleaseURL(t *testing.T) {
 
 func TestDefault(t *testing.T) {
 	orig := os.Getenv(envVarName)
-	err := os.Setenv(envVarName, "access-token")
-	assert.NoError(t, err)
-	defer os.Setenv(envVarName, orig)
+	assert.NoError(t, os.Setenv(envVarName, "access-token"))
+
+	defer func() {
+		assert.NoError(t, os.Setenv(envVarName, orig))
+	}()
 
 	spec := Default()
 
