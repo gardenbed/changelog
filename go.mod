@@ -1,6 +1,6 @@
 module github.com/gardenbed/changelog
 
-go 1.24.4
+go 1.25.0
 
 require (
 	github.com/fatih/color v1.18.0
@@ -8,7 +8,7 @@ require (
 	github.com/gardenbed/go-github v0.1.2
 	github.com/go-git/go-git/v5 v5.16.5
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/sync v0.19.0
+	golang.org/x/sync v0.20.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
